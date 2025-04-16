@@ -1,6 +1,8 @@
 import pygame
 from SoundHandler import SoundHandler
 from KeyButton import KeyButton
+import keymap
+import time
 
 class KeyboardApp:
     def __init__(self):
@@ -12,13 +14,24 @@ class KeyboardApp:
         self.running = True
 
         self.sound_handler = SoundHandler()
-        self.buttons = [
-            KeyButton(rect=(30, 200, 60, 300), label='A', key=pygame.K_a,
-                      sound_file='pitched_combo_sound_0.wav', sound_handler=self.sound_handler)
-            # Add more buttons here later!
-        ]
+        self.buttons = []
+
+        for i, (label, key, sound) in enumerate(keymap.keymap):
+            x = 15 + i*55
+            y = 200
+            btn = KeyButton(rect=(x, y, 50, 300), label=label, key=key,
+                    sound_file=sound, sound_handler=self.sound_handler)
+            self.buttons.append(btn)
 
     def run(self):
+        self.sound_handler.convert_mp3_to_wav('mp3_files/combo_sound.mp3', 'wav_files')
+        for i in range(-15, 15, 1):
+            self.sound_handler.pitch_files_in_folder('wav_files', 'pitched_wav', i)
+
+        print(self.sound_handler.get_average_pitch_and_note('wav_files/combo_sound.wav'))
+
+        time.sleep(2)
+
         while self.running:
             self.screen.fill('pink')
             mouse_pos = pygame.mouse.get_pos()

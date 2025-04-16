@@ -30,18 +30,17 @@ class SoundHandler:
 
     def get_average_pitch_and_note(self, filepath):
         y, sr = librosa.load(filepath)
-        pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-
-        pitch_values = [
-            pitches[magnitudes[:, i].argmax(), i]
-            for i in range(pitches.shape[1])
-            if pitches[magnitudes[:, i].argmax(), i] > 0
-        ]
-
-        if not pitch_values:
+    
+        # Use YIN for fundamental frequency estimation
+        f0 = librosa.yin(y, fmin=librosa.note_to_hz('C1'), fmax=librosa.note_to_hz('C8'))
+        
+        # Filter out unvoiced (zero or nan) values
+        f0 = f0[~np.isnan(f0)]
+        
+        if len(f0) == 0:
             return None, None
 
-        average_pitch = np.mean(pitch_values)
+        average_pitch = np.median(f0)  # Median often more robust than mean
         note_name = librosa.hz_to_note(average_pitch)
         return average_pitch, note_name
 
@@ -56,7 +55,6 @@ class SoundHandler:
 
     def pitch_shift_audio(self, input_file, output_folder, n_steps):
         if not os.path.exists(output_folder):
-            print(f"Folder not found: {output_folder}. Creating it...")
             os.makedirs(output_folder)
 
         y, sr = librosa.load(input_file)
