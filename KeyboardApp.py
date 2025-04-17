@@ -25,6 +25,7 @@ class KeyboardApp:
             y = 200
             btn = KeyButton(rect=(x, y, 50, 300), label=label, key=key,
                     sound_file=sound, note_name=note_name, sound_handler=self.sound_handler)
+            #TODO: Could maybe do callback function for these too
             self.buttons.append(btn)
         
         load_btn_rect = (15, 20, 100, 40)
@@ -56,6 +57,7 @@ class KeyboardApp:
             print("Unsupported format")
             return
 
+        # TODO: Pitch detection of OG file to know base note
         self.sound_handler.pitch_files_in_folder('wav_files', 'pitched_wav', (-10, 25), 'F4')
         time.sleep(2)
 
