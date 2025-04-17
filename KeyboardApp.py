@@ -6,6 +6,7 @@ import time
 import tkinter as tk
 from tkinter import filedialog
 import os
+import glob
 
 
 class KeyboardApp:
@@ -37,6 +38,10 @@ class KeyboardApp:
         self.buttons.append(load_btn)
 
     def load_and_process_file(self):
+        
+        # Would like to remove current files here instead but it said that the folder 
+        # Cannot be accessed because it is opened by another process
+
         root = tk.Tk()
         root.withdraw()
 
@@ -58,7 +63,9 @@ class KeyboardApp:
             return
 
         # TODO: Pitch detection of OG file to know base note
-        self.sound_handler.pitch_files_in_folder('wav_files', 'pitched_wav', (-10, 25), 'F4')
+        for n_steps in range(-10, 25):
+            self.sound_handler.pitch_shift_audio(wav_output_path, "pitched_wav", n_steps, base_note='F4')
+        #self.sound_handler.pitch_files_in_folder('wav_files', 'pitched_wav', (-10, 25), 'F4')
         time.sleep(2)
 
 
