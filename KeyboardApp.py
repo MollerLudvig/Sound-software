@@ -3,6 +3,10 @@ from SoundHandler import SoundHandler
 from KeyButton import KeyButton
 import keymap
 import time
+import tkinter as tk
+from tkinter import filedialog
+import os
+
 
 class KeyboardApp:
     def __init__(self):
@@ -22,16 +26,41 @@ class KeyboardApp:
             btn = KeyButton(rect=(x, y, 50, 300), label=label, key=key,
                     sound_file=sound, note_name=note_name, sound_handler=self.sound_handler)
             self.buttons.append(btn)
+        
+        load_btn_rect = (15, 20, 100, 40)
+        load_btn = KeyButton(rect=load_btn_rect, label="Load", key=None,
+            sound_file=None, note_name="", sound_handler=self.sound_handler
+        )
+
+        load_btn.set_click_callback(self.load_and_process_file)
+        self.buttons.append(load_btn)
+
+    def load_and_process_file(self):
+        root = tk.Tk()
+        root.withdraw()
+
+        file_path = filedialog.askopenfilename(filetypes=[("Audio Files", "*.mp3 *.wav")])
+        if not file_path:
+            print("No file selected.")
+            return
+
+        filename = os.path.basename(file_path)
+        name_no_extention, extention = os.path.splitext(filename)
+
+        if extention.lower() == '.mp3':
+            wav_output_path = os.path.join('wav_files', name_no_extention + '.wav')
+            self.sound_handler.convert_mp3_to_wav(file_path, 'wav_files')
+        elif extention.lower() == '.wav':
+            wav_output_path = file_path
+        else:
+            print("Unsupported format")
+            return
+
+        self.sound_handler.pitch_files_in_folder('wav_files', 'pitched_wav', (-10, 25), 'F4')
+        time.sleep(2)
+
 
     def run(self):
-        #TODO: Make button to load a mp3 file and use that as the sound
-        self.sound_handler.convert_mp3_to_wav('mp3_files/combo_sound.mp3', 'wav_files')
-        self.sound_handler.pitch_files_in_folder('wav_files', 'pitched_wav', (-10, 25), 'F4')
-
-        #TODO: Do fft to figure out the pitch of the sound
-        print(self.sound_handler.get_average_pitch_and_note('wav_files/combo_sound.wav'))
-
-        time.sleep(2)
 
         while self.running:
             self.screen.fill('pink')

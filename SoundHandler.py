@@ -5,6 +5,11 @@ import librosa
 import numpy as np
 import soundfile as sf
 
+import matplotlib.pyplot as plt
+from scipy.io import wavfile # get the api
+from scipy.fftpack import fft
+from pylab import *
+
 class SoundHandler:
     def __init__(self, note_folder="pitched_wav", ffmpeg_path=r"C:\ffmpeg\bin\ffmpeg.exe"):
         # Setup ffmpeg for pydub
@@ -19,7 +24,7 @@ class SoundHandler:
             return
 
         if not os.path.exists(wav_folder):
-            print(f"Folder not found: {wav_folder}. Creating it...")
+            print(f"Output folder {wav_folder} not found, creating it in current directory")
             os.makedirs(wav_folder)
 
         audio = AudioSegment.from_mp3(mp3_path)
@@ -27,7 +32,7 @@ class SoundHandler:
         wav_path = os.path.join(wav_folder, wav_filename)
 
         audio.export(wav_path, format="wav")
-        print(f"✅ Converted to: {wav_path}")
+        print(f"Converted to: {wav_path}")
 
     def get_average_pitch_and_note(self, filepath):
         y, sr = librosa.load(filepath)
@@ -47,16 +52,15 @@ class SoundHandler:
 
     def play_single_note(self, filename):
         filepath = os.path.join(self.note_folder, filename)
-        print(f"▶️ Playing: {filename}")
+        print(f"Playing: {filename}")
         try:
             pygame.mixer.music.load(filepath)
             pygame.mixer.music.play()
         except Exception as e:
-            print(f"⚠️ Could not play {filename}: {e}")
+            print(f"Could not play {filename}: {e}")
 
     
     def semitone_to_note_name(self, base_note='C4', n_steps=0):
-        """Returns the note name N semitones from the base note."""
         # Convert base note (like C4) to MIDI number
         base_name = base_note[:-1]
         base_octave = int(base_note[-1])
@@ -80,14 +84,40 @@ class SoundHandler:
         output_file = os.path.join(output_folder, f"{note_name}.wav")
 
         sf.write(output_file, y_shifted, sr)
-        print(f"✅ Saved: {output_file}")
+        print(f"Saved: {output_file}")
 
     def pitch_files_in_folder(self, input_folder, output_folder, steps_range=(-10, 25), base_note='C4'):
+
+        if not os.path.exists(output_folder):
+            print(f"Output folder {output_folder} not found, creating it in current directory")
+            os.makedirs(output_folder)
+
         for filename in os.listdir(input_folder):
             if filename.endswith(".wav"):
                 input_file = os.path.join(input_folder, filename)
                 for n_steps in range(steps_range[0], steps_range[1]):
                     self.pitch_shift_audio(input_file, output_folder, n_steps, base_note)
+
+    def fft(self, filepath):
+        time_series, sample_rate = librosa.load(filepath, sr=None)
+        fft_result = np.fft.fft(time_series)
+        magnitude = np.abs(fft_result)
+        frequency = np.fft.fftfreq(len(magnitude), d=1/sample_rate)
+
+        # First half of fft is negative
+        half_len = len(magnitude) // 2
+        magnitude = magnitude[:half_len]
+        frequency = frequency[:half_len]
+
+        plt.figure(figsize=(12, 6))
+        plt.plot(frequency, magnitude, color='tomato')
+        plt.xlabel('Frequency (Hz)')
+        plt.ylabel('Magnitude')
+        plt.title('Frequency Spectrum')
+        plt.grid(True)
+        filename = os.path.splitext(os.path.basename(filepath))
+        plt.savefig(f"plots/{filename[0]}", dpi=300)
+
 
 
 

@@ -15,6 +15,10 @@ key_order = [(label, getattr(pygame, f'K_{label.lower()}')) for label in key_lab
 
 sound_folder = "pitched_wav"
 
+if not os.path.exists(sound_folder):
+    print(f"Output folder {sound_folder} not found, creating it in current directory")
+    os.makedirs(sound_folder)
+
 # Helper to extract MIDI number from a note name like "C#4"
 def note_to_midi(note):
     note_names = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4,

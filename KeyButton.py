@@ -13,6 +13,7 @@ class KeyButton:
         self.color_hover = (180, 180, 180)
         self.color_pressed = (100, 150, 255)
 
+        self.click_callback = None
         self.mouse_held = False
         self.key_held = False
 
@@ -27,8 +28,13 @@ class KeyButton:
             self.key_held = False
 
         elif event.type == pygame.MOUSEBUTTONDOWN and hovered:
-            self.sound_handler.play_single_note(self.sound_file)
+            if self.sound_file:
+                self.sound_handler.play_single_note(self.sound_file)
+            
+            if self.click_callback:
+                self.click_callback()
             self.mouse_held = True
+            
 
         elif event.type == pygame.MOUSEBUTTONUP:
             self.mouse_held = False
@@ -51,3 +57,6 @@ class KeyButton:
         note_surface = font.render(self.note_name, True, 'black')
         note_text_rect = note_surface.get_rect(center=(self.rect.centerx, self.rect.centery + self.rect.height/2 - 15))
         screen.blit(note_surface, note_text_rect)
+
+    def set_click_callback(self, callback):
+        self.click_callback = callback
