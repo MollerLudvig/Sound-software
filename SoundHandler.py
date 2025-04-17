@@ -11,6 +11,7 @@ class SoundHandler:
         AudioSegment.converter = ffmpeg_path
         self.note_folder = note_folder
         pygame.mixer.init()
+        self.NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
     def convert_mp3_to_wav(self, mp3_path, wav_folder):
         if not os.path.isfile(mp3_path):
@@ -53,25 +54,41 @@ class SoundHandler:
         except Exception as e:
             print(f"⚠️ Could not play {filename}: {e}")
 
-    def pitch_shift_audio(self, input_file, output_folder, n_steps):
+    
+    def semitone_to_note_name(self, base_note='C4', n_steps=0):
+        """Returns the note name N semitones from the base note."""
+        # Convert base note (like C4) to MIDI number
+        base_name = base_note[:-1]
+        base_octave = int(base_note[-1])
+        base_index = self.NOTE_NAMES.index(base_name)
+        base_midi = base_octave * 12 + base_index
+
+        new_midi = base_midi + n_steps
+        new_octave = new_midi // 12
+        note_index = new_midi % 12
+
+        return f"{self.NOTE_NAMES[note_index]}{new_octave}"
+
+    def pitch_shift_audio(self, input_file, output_folder, n_steps, base_note='C4'):
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
         y, sr = librosa.load(input_file)
         y_shifted = librosa.effects.pitch_shift(y=y, sr=sr, n_steps=n_steps)
 
-        full_filename = os.path.basename(input_file)
-        filename, ext = os.path.splitext(full_filename)
-        output_file = os.path.join(output_folder, f"pitched_{filename}_{n_steps}{ext}")
+        note_name = self.semitone_to_note_name(base_note, n_steps)
+        output_file = os.path.join(output_folder, f"{note_name}.wav")
 
         sf.write(output_file, y_shifted, sr)
-        print(f"✅ Pitched audio saved to: {output_file}")
+        print(f"✅ Saved: {output_file}")
 
-    def pitch_files_in_folder(self, input_folder, output_folder, n_steps):
+    def pitch_files_in_folder(self, input_folder, output_folder, steps_range=(-10, 25), base_note='C4'):
         for filename in os.listdir(input_folder):
             if filename.endswith(".wav"):
                 input_file = os.path.join(input_folder, filename)
-                self.pitch_shift_audio(input_file, output_folder, n_steps)
+                for n_steps in range(steps_range[0], steps_range[1]):
+                    self.pitch_shift_audio(input_file, output_folder, n_steps, base_note)
+
 
 
 

@@ -9,25 +9,26 @@ class KeyboardApp:
         pygame.init()
         self.screen = pygame.display.set_mode((2000, 500))
         pygame.display.set_caption("Virtual Keyboard")
-        self.font = pygame.font.SysFont('Georgia', 40, bold=True)
+        self.font = pygame.font.SysFont('Georgia', 20, bold=True)
         self.clock = pygame.time.Clock()
         self.running = True
 
         self.sound_handler = SoundHandler()
         self.buttons = []
 
-        for i, (label, key, sound) in enumerate(keymap.keymap):
+        for i, (label, key, sound, note_name) in enumerate(keymap.keymap):
             x = 15 + i*55
             y = 200
             btn = KeyButton(rect=(x, y, 50, 300), label=label, key=key,
-                    sound_file=sound, sound_handler=self.sound_handler)
+                    sound_file=sound, note_name=note_name, sound_handler=self.sound_handler)
             self.buttons.append(btn)
 
     def run(self):
+        #TODO: Make button to load a mp3 file and use that as the sound
         self.sound_handler.convert_mp3_to_wav('mp3_files/combo_sound.mp3', 'wav_files')
-        for i in range(-15, 15, 1):
-            self.sound_handler.pitch_files_in_folder('wav_files', 'pitched_wav', i)
+        self.sound_handler.pitch_files_in_folder('wav_files', 'pitched_wav', (-10, 25), 'F4')
 
+        #TODO: Do fft to figure out the pitch of the sound
         print(self.sound_handler.get_average_pitch_and_note('wav_files/combo_sound.wav'))
 
         time.sleep(2)

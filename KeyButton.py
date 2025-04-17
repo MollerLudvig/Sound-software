@@ -1,11 +1,12 @@
 import pygame
 
 class KeyButton:
-    def __init__(self, rect, label, key, sound_file, sound_handler):
+    def __init__(self, rect, label, key, sound_file, note_name, sound_handler):
         self.rect = pygame.Rect(rect)
         self.label = label
         self.key = key
         self.sound_file = sound_file
+        self.note_name = note_name
         self.sound_handler = sound_handler
 
         self.color_default = (255, 255, 255)
@@ -44,4 +45,9 @@ class KeyButton:
 
         pygame.draw.rect(screen, color, self.rect)
         label_surface = font.render(self.label, True, 'black')
-        screen.blit(label_surface, (self.rect.x + 15, self.rect.y + 10))
+        label_text_rect = label_surface.get_rect(center=(self.rect.centerx, self.rect.y+10))
+        screen.blit(label_surface, label_text_rect)
+
+        note_surface = font.render(self.note_name, True, 'black')
+        note_text_rect = note_surface.get_rect(center=(self.rect.centerx, self.rect.centery + self.rect.height/2 - 15))
+        screen.blit(note_surface, note_text_rect)

@@ -2,7 +2,7 @@ import os
 import re
 import pygame
 
-# Full key layout: 1-0, Q-P, A-L, Z-M
+# Full key layout: 1-0, Q-P, A-L, Z-M (35 keys total)
 key_labels = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
     'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
@@ -15,18 +15,24 @@ key_order = [(label, getattr(pygame, f'K_{label.lower()}')) for label in key_lab
 
 sound_folder = "pitched_wav"
 
-# Regex to extract pitch number from filename
-def extract_pitch_value(filename):
-    match = re.search(r'(-?\d+)', filename)
-    return int(match.group(1)) if match else 0
+# Helper to extract MIDI number from a note name like "C#4"
+def note_to_midi(note):
+    note_names = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4,
+                  'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11}
+    match = re.match(r"([A-G]#?)(-?\d+)", note)
+    if match:
+        name, octave = match.groups()
+        return (int(octave) + 1) * 12 + note_names[name]
+    return 0  # fallback if the format is wrong
 
-# Sort all .wav files numerically by pitch
+# Get and sort .wav files by MIDI pitch
 wav_files = sorted(
     [f for f in os.listdir(sound_folder) if f.endswith(".wav")],
-    key=extract_pitch_value
+    key=lambda f: note_to_midi(os.path.splitext(f)[0])
 )
 
 # Match sounds to keys
 keymap = []
 for (label, key), filename in zip(key_order, wav_files):
-    keymap.append((label, key, filename))
+    note_name = os.path.splitext(filename)[0]
+    keymap.append((label, key, filename, note_name))
