@@ -29,7 +29,6 @@ class KeyboardApp:
         )
 
         self.load_btn.set_click_callback(self.load_and_process_file)
-        # self.buttons.append(self.load_btn)
 
     def init_keyboard(self):
         # Fuckass solution to just import again to run 'keymap' file again with updated sound folder
@@ -45,9 +44,7 @@ class KeyboardApp:
             self.buttons.append(btn)
 
     def load_and_process_file(self):
-        
-        # Could load all sound into memory here and not when i press the key
-
+    
         root = tk.Tk()
         root.withdraw()
 
@@ -56,6 +53,8 @@ class KeyboardApp:
             print("No file selected.")
             return
 
+        # Remove current sounds if a new sound file has been selected
+        # Which in turn clears the part of the RAM that was taken up by the sound object
         pygame.mixer.stop()
         self.buttons.clear()
 

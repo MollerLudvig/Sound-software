@@ -49,16 +49,6 @@ class SoundHandler:
         average_pitch = np.median(f0)  # Median often more robust than mean
         note_name = librosa.hz_to_note(average_pitch)
         return average_pitch, note_name
-
-    def play_single_note(self, filename):
-        filepath = os.path.join(self.note_folder, filename)
-        print(f"Playing: {filename}")
-        try:
-            sound = pygame.mixer.Sound(filepath)
-            sound.play()
-        except Exception as e:
-            print(f"Could not play {filename}: {e}")
-
     
     def semitone_to_note_name(self, base_note='C4', n_steps=0):
         # Convert base note (like C4) to MIDI number

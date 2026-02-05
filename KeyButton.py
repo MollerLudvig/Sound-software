@@ -10,6 +10,7 @@ class KeyButton:
         self.note_name = note_name
         self.sound_handler = sound_handler
 
+        # Load sounds into RAM once instead of each time i press a key
         self.sound = None
         if sound_file:
             path = os.path.join(sound_handler.note_folder, sound_file)
