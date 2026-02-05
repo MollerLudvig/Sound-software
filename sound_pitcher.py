@@ -21,7 +21,7 @@ def pitch_shift_audio(input_file, output_folder, n_steps):
 
 
     sf.write(output_file, y_shifted, sr)
-    print(f"✅ Pitched audio saved to: {output_file}")
+    print(f"Pitched audio saved to: {output_file}")
 
 def pitch_files_in_folder(input_folder, output_folder, n_steps):
     for filename in os.listdir(input_folder):

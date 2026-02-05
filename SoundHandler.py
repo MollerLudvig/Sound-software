@@ -54,8 +54,8 @@ class SoundHandler:
         filepath = os.path.join(self.note_folder, filename)
         print(f"Playing: {filename}")
         try:
-            pygame.mixer.music.load(filepath)
-            pygame.mixer.music.play()
+            sound = pygame.mixer.Sound(filepath)
+            sound.play()
         except Exception as e:
             print(f"Could not play {filename}: {e}")
 
@@ -83,6 +83,8 @@ class SoundHandler:
         note_name = self.semitone_to_note_name(base_note, n_steps)
         output_file = os.path.join(output_folder, f"{note_name}.wav")
 
+        # Can't open another file, it throws error on the note that i have previously played
+        # e.g. i open on file and play a C4, it will then throw error when trying to open C4 for the next file
         sf.write(output_file, y_shifted, sr)
         print(f"Saved: {output_file}")
 

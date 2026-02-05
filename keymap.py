@@ -1,3 +1,5 @@
+#TODO: Make a class out of this if need be
+
 import os
 import re
 import pygame
@@ -32,7 +34,7 @@ def note_to_midi(note):
 # Get and sort .wav files by MIDI pitch
 wav_files = sorted(
     [f for f in os.listdir(sound_folder) if f.endswith(".wav")],
-    key=lambda f: note_to_midi(os.path.splitext(f)[0])
+    key = lambda f: note_to_midi(os.path.splitext(f)[0])
 )
 
 # Match sounds to keys

@@ -1,4 +1,5 @@
 import pygame
+import os
 
 class KeyButton:
     def __init__(self, rect, label, key, sound_file, note_name, sound_handler):
@@ -8,6 +9,14 @@ class KeyButton:
         self.sound_file = sound_file
         self.note_name = note_name
         self.sound_handler = sound_handler
+
+        self.sound = None
+        if sound_file:
+            path = os.path.join(sound_handler.note_folder, sound_file)
+            try:
+                self.sound = pygame.mixer.Sound(path)
+            except Exception as e:
+                print(f"Failed loading {sound_file}: {e}")
 
         self.color_default = (255, 255, 255)
         self.color_hover = (180, 180, 180)
@@ -28,8 +37,8 @@ class KeyButton:
             self.key_held = False
 
         elif event.type == pygame.MOUSEBUTTONDOWN and hovered:
-            if self.sound_file:
-                self.sound_handler.play_single_note(self.sound_file)
+            if self.sound:
+                self.sound.play()
             
             if self.click_callback:
                 self.click_callback()
