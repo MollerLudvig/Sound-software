@@ -70,11 +70,10 @@ class SoundHandler:
         y, sr = librosa.load(input_file)
         y_shifted = librosa.effects.pitch_shift(y=y, sr=sr, n_steps=n_steps)
 
+        # May not need to save them as files in the folder, could just save them in a list in memory
         note_name = self.semitone_to_note_name(base_note, n_steps)
         output_file = os.path.join(output_folder, f"{note_name}.wav")
 
-        # Can't open another file, it throws error on the note that i have previously played
-        # e.g. i open on file and play a C4, it will then throw error when trying to open C4 for the next file
         sf.write(output_file, y_shifted, sr)
         print(f"Saved: {output_file}")
 
