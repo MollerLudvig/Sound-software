@@ -11,7 +11,7 @@ import keymap
 class KeyboardApp:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((2000, 500))
+        self.screen = pygame.display.set_mode((1120, 500))
         pygame.display.set_caption("Virtual Keyboard")
         self.font = pygame.font.SysFont('Georgia', 14, bold=True)
         self.clock = pygame.time.Clock()
@@ -19,11 +19,13 @@ class KeyboardApp:
 
         self.sound_handler = SoundHandler()
 
+        self.waveforms = {}  # {note_name: (y_shifted, sr)}
+
         self.init_keyboard()
 
         load_btn_rect = (15, 20, 100, 40)
         self.load_btn = KeyButton(rect=load_btn_rect, label="Load", key=None,
-            sound_file=None, note_name="", sound_handler=self.sound_handler
+            waveform=None, note_name="", sound_handler=self.sound_handler
         )
         self.load_btn.set_click_callback(self.load_and_process_file)
 
@@ -40,15 +42,14 @@ class KeyboardApp:
 
         current_x = START_X
 
-        for (label, key, sound_file, note_name) in self.keymap:
+        for (label, key), (note_name, waveform) in zip(keymap.keymap, self.waveforms.items()):
             is_black = '#' in note_name
-
+ 
             if is_black:
-                # Centre over the gap between the previous and next white key
                 x = current_x - BLACK_W // 2
                 btn = KeyButton(
                     rect=(x, KEY_Y, BLACK_W, BLACK_H),
-                    label=label, key=key, sound_file=sound_file,
+                    label=label, key=key, waveform=waveform,
                     note_name=note_name, sound_handler=self.sound_handler,
                     is_black=True
                 )
@@ -56,7 +57,7 @@ class KeyboardApp:
             else:
                 btn = KeyButton(
                     rect=(current_x, KEY_Y, WHITE_W, WHITE_H),
-                    label=label, key=key, sound_file=sound_file,
+                    label=label, key=key, waveform=waveform,
                     note_name=note_name, sound_handler=self.sound_handler,
                     is_black=False
                 )
@@ -88,8 +89,11 @@ class KeyboardApp:
             print("Unsupported format")
             return
 
+        # Maybe loop through note names instead and chekc how many steps we need to pitch from base note to get to target note
+        # This way, the keyboard will always have the same layout and hotkeys won't change depending on base note
         for n_steps in range(-10, 25):
-            self.sound_handler.pitch_shift_audio(wav_output_path, "pitched_wav", n_steps, base_note='F4')
+            note_name, y_shifted, sr = self.sound_handler.pitch_shift_audio(wav_output_path, n_steps, base_note='F4')
+            self.waveforms[note_name] = (y_shifted, sr)
 
         self.init_keyboard()
 

@@ -11,10 +11,8 @@ from scipy.fftpack import fft
 from pylab import *
 
 class SoundHandler:
-    def __init__(self, note_folder="pitched_wav", ffmpeg_path=r"C:\ffmpeg\bin\ffmpeg.exe"):
-        # Setup ffmpeg for pydub
+    def __init__(self, ffmpeg_path=r"C:\ffmpeg\bin\ffmpeg.exe"):
         AudioSegment.converter = ffmpeg_path
-        self.note_folder = note_folder
         pygame.mixer.init()
         self.NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
@@ -33,6 +31,7 @@ class SoundHandler:
 
         audio.export(wav_path, format="wav")
         print(f"Converted to: {wav_path}")
+        return wav_path
 
     def get_average_pitch_and_note(self, filepath):
         y, sr = librosa.load(filepath)
@@ -63,19 +62,12 @@ class SoundHandler:
 
         return f"{self.NOTE_NAMES[note_index]}{new_octave}"
 
-    def pitch_shift_audio(self, input_file, output_folder, n_steps, base_note='C4'):
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-
+    def pitch_shift_audio(self, input_file, n_steps, base_note='C4'):
         y, sr = librosa.load(input_file)
         y_shifted = librosa.effects.pitch_shift(y=y, sr=sr, n_steps=n_steps)
-
-        # May not need to save them as files in the folder, could just save them in a list in memory
         note_name = self.semitone_to_note_name(base_note, n_steps)
-        output_file = os.path.join(output_folder, f"{note_name}.wav")
-
-        sf.write(output_file, y_shifted, sr)
-        print(f"Saved: {output_file}")
+        print(f"Pitched: {note_name}")
+        return note_name, y_shifted, sr
 
     def pitch_files_in_folder(self, input_folder, output_folder, steps_range=(-10, 25), base_note='C4'):
 
