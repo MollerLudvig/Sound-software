@@ -68,6 +68,7 @@ class SoundHandler:
         note_name = self.semitone_to_note_name(base_note, n_steps)
         print(f"Pitched: {note_name}")
         return note_name, y_shifted, sr
+        # Create additional waveforms here: Pitch shift while keeping length (current), pitch shift changing length, and just sample
 
     def pitch_files_in_folder(self, input_folder, output_folder, steps_range=(-10, 25), base_note='C4'):
 

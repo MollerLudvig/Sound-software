@@ -73,12 +73,13 @@ class KeyboardApp:
             print("No file selected.")
             return
 
+        filename = os.path.basename(file_path)
+        name_no_extention, extention = os.path.splitext(filename)
+        # if filename exists in dict, then we just load a default setting here instead of doing all the pitch shifting again
+
         pygame.mixer.stop()
         self.white_buttons.clear()
         self.black_buttons.clear()
-
-        filename = os.path.basename(file_path)
-        name_no_extention, extention = os.path.splitext(filename)
 
         if extention.lower() == '.mp3':
             wav_output_path = os.path.join('wav_files', name_no_extention + '.wav')
@@ -89,11 +90,20 @@ class KeyboardApp:
             print("Unsupported format")
             return
 
-        # Maybe loop through note names instead and chekc how many steps we need to pitch from base note to get to target note
+        # Maybe loop through note names instead and check how many steps we need to pitch from base note to get to target note
         # This way, the keyboard will always have the same layout and hotkeys won't change depending on base note
         for n_steps in range(-10, 25):
             note_name, y_shifted, sr = self.sound_handler.pitch_shift_audio(wav_output_path, n_steps, base_note='F4')
             self.waveforms[note_name] = (y_shifted, sr)
+            # Create waveform1, 2, and 3 here instead of setting self.waveform directly
+
+        # # Attribute to keep track of the currently loaded file
+        # # Would also need to check if the loaded filename already exists in the dict, in that case we dont wanna otch shift again, just set self.waveforms to the default setting
+        # {name_no_extention: {pitch_w_length: waveform1,
+        #                      pitch_wo_length: waveform2,
+        #                      sample: waveform3}}
+        # self.waveforms = waveform3 # (or whatever should be the default setting)
+        # # self.waveforms is the currently used sound type
 
         self.init_keyboard()
 
